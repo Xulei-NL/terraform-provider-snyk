@@ -1,4 +1,4 @@
-module github.com/snyk-terraform-assets/terraform-provider-snyk
+module terraform-provider-snyk
 
 go 1.19
 
@@ -10,6 +10,7 @@ require (
 	github.com/hashicorp/terraform-plugin-framework-validators v0.11.0
 	github.com/hashicorp/terraform-plugin-go v0.18.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.25.0
+	github.com/snyk-terraform-assets/terraform-provider-snyk v0.0.5
 )
 
 require (

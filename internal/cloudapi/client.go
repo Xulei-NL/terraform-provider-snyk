@@ -20,10 +20,10 @@ import (
 	"net/url"
 	"os"
 
-	snyk_http "github.com/snyk-terraform-assets/terraform-provider-snyk/internal/http"
+	snyk_http "terraform-provider-snyk/internal/http"
 )
 
-const VERSION = "2022-04-13~experimental"
+const VERSION = "2024-08-30"
 
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
@@ -45,9 +45,7 @@ type Client struct {
 }
 
 func NewClient(url string, token string) (*Client, error) {
-	httpClient, err := snyk_http.NewClient(
-		snyk_http.WithExtraCertificates(os.Getenv("NODE_EXTRA_CA_CERTS")),
-	)
+	httpClient, err := snyk_http.NewClient()
 	if err != nil {
 		return nil, err
 	}

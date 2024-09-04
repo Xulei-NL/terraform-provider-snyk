@@ -20,7 +20,7 @@ import (
 	"net/url"
 	"os"
 
-	snyk_http "github.com/snyk-terraform-assets/terraform-provider-snyk/internal/http"
+	snyk_http "terraform-provider-snyk/internal/http"
 )
 
 const VERSION = "2023-09-20"

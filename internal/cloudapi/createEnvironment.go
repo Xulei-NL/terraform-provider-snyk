@@ -104,6 +104,102 @@ func convertEnvRequestOptionsForUnMarshal(req *EnvironmentRequest) (*Environment
 	return req, nil
 }
 
+func (c *Client) GetRequest(ctx context.Context, orgID string, request *SastRequest) (er *SastResponse, e error) {
+	var body bytes.Buffer
+	if err := json.NewEncoder(&body).Encode((request)); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s/rest/orgs/%s/settings/sast", c.url, orgID)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	query := req.URL.Query()
+	query.Set("version", c.version)
+	req.URL.RawQuery = query.Encode()
+
+	req.Header.Set("Content-Type", "application/vnd.api+json")
+	req.Header.Set("Authorization", c.authorization)
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err := res.Body.Close(); err != nil && e == nil {
+			e = err
+		}
+	}()
+
+	if res.StatusCode == http.StatusOK {
+		bodyBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+		var resp *SastResponse
+		err = json.Unmarshal([]byte(bodyBytes), &resp)
+		if err != nil {
+			return nil, err
+		}
+		return resp, nil
+	} else {
+		bodyBytes, err := io.ReadAll(res.Body)
+		return nil, fmt.Errorf("invalid status code: %v %v %v", res.StatusCode, err, string(bodyBytes))
+	}
+}
+
+func (c *Client) CreateRequest(ctx context.Context, orgID string, request *SastRequest) (er *SastResponse, e error) {
+	var body bytes.Buffer
+	if err := json.NewEncoder(&body).Encode((request)); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("https://api.eu.snyk.io/rest/orgs/%s/settings/sast", orgID)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, url, &body)
+	if err != nil {
+		return nil, err
+	}
+
+	query := req.URL.Query()
+	query.Set("version", c.version)
+	req.URL.RawQuery = query.Encode()
+
+	req.Header.Set("Content-Type", "application/vnd.api+json")
+	req.Header.Set("Authorization", c.authorization)
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err := res.Body.Close(); err != nil && e == nil {
+			e = err
+		}
+	}()
+
+	if res.StatusCode == http.StatusCreated { // what about http.StatusOK?
+		bodyBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+		var resp *SastResponse
+		err = json.Unmarshal([]byte(bodyBytes), &resp)
+		if err != nil {
+			return nil, err
+		}
+		return resp, nil
+	} else {
+		bodyBytes, err := io.ReadAll(res.Body)
+		return nil, fmt.Errorf("invalid status code: %v %v %v ", res.StatusCode, string(bodyBytes), err)
+	}
+}
+
 func (c *Client) CreateEnvironment(ctx context.Context, orgID string, request *EnvironmentRequest) (er *EnvironmentResponse, e error) {
 	var body bytes.Buffer
 	if err := json.NewEncoder(&body).Encode(convertEnvRequestOptionsForMarshal(request)); err != nil {

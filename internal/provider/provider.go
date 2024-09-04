@@ -23,10 +23,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/snyk-terraform-assets/terraform-provider-snyk/internal/snykclient"
+	"terraform-provider-snyk/internal/snykclient"
 )
 
-const DefaultEndpoint = "https://api.snyk.io/rest"
+const DefaultEndpoint = "https://api.eu.snyk.io/rest"
 
 // Ensure SnykProvider satisfies various provider interfaces.
 var _ provider.Provider = &SnykProvider{}
@@ -37,6 +37,14 @@ type SnykProvider struct {
 	// provider is built and ran locally, and "test" when running acceptance
 	// testing.
 	version string
+}
+
+func New(version string) func() provider.Provider {
+	return func() provider.Provider {
+		return &SnykProvider{
+			version: version,
+		}
+	}
 }
 
 // SnykProviderModel describes the provider data model.
@@ -87,27 +95,16 @@ func (p *SnykProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		return
 	}
 
-	resp.DataSourceData = client
 	resp.ResourceData = client
 
 }
 
 func (p *SnykProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewEnvironmentResource,
-		NewOrganizationResource,
-		NewOrganizationServiceAccountResource,
+		NewSastResource,
 	}
 }
 
 func (p *SnykProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{}
-}
-
-func New(version string) func() provider.Provider {
-	return func() provider.Provider {
-		return &SnykProvider{
-			version: version,
-		}
-	}
+	return nil
 }

@@ -1,8 +1,8 @@
 package snykclient
 
 import (
-	"github.com/snyk-terraform-assets/terraform-provider-snyk/internal/cloudapi"
-	"github.com/snyk-terraform-assets/terraform-provider-snyk/internal/organization"
+	"terraform-provider-snyk/internal/cloudapi"
+	"terraform-provider-snyk/internal/organization"
 )
 
 type Client struct {
